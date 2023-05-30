@@ -1,0 +1,12 @@
+# Maven target directory
+target/
+
+# IDE specific files and directories
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# My csv
+data.csv
+tps.csv
