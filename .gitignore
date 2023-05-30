@@ -1,5 +1,6 @@
 # Maven target directory
 target/
+dependency-reduced-pom.xml
 
 # IDE specific files and directories
 .idea/
