@@ -30,21 +30,42 @@ jobs:
           name: my-artifact
           path: target/ethStats.jar
 
-      # 步骤5：更新 Releases
+      # 步骤5：更新 Release
       - name: Update Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           OWNER=${{ github.repository_owner }}
           REPO=${{ github.repository }}
-          RELEASE_ID=YOUR_RELEASE_ID  # 替换为实际的 Release ID
-          TAG_NAME=v1.0.0  # 替换为实际的标签名称
-          RELEASE_NAME=v1.0.0  # 替换为实际的 Release 名称
+          TAG=v1.0.0  # 要更新的标签名称
+          RELEASE_NAME=v1.0.0  # 更新后的 Release 名称
+          RELEASE_BODY="Your updated release notes."  # 更新后的 Release 描述
+          ASSET_PATH=target/ethStats.jar  # JAR 文件路径
+          ASSET_NAME=ethStats.jar  # JAR 文件名
 
-          # 使用 curl 或其他适合的工具发送 API 请求
-          curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID \
+          # 获取已发布的 Release 的 ID
+          RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG \
+            | jq -r '.id')
+
+          if [ -z "$RELEASE_ID" ]; then
+            echo "Release '$TAG' not found."
+            exit 1
+          fi
+
+          # 上传 JAR 文件
+          UPLOAD_URL="https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$ASSET_NAME"
+          UPLOAD_RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/java-archive" \
+            --data-binary "@$ASSET_PATH" \
+            "$UPLOAD_URL")
+
+          # 更新 Release 的名称和描述
+          curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
             -d '{
-              "tag_name": "'$TAG_NAME'",
+              "tag_name": "'$TAG'",
               "name": "'$RELEASE_NAME'",
-              "body": "Your release notes for the updated version."
-            }'
+              "body": "'$RELEASE_BODY'"
+            }' \
+            "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID"
