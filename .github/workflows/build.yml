@@ -30,42 +30,50 @@ jobs:
           name: my-artifact
           path: target/ethStats.jar
 
-      # 步骤5：更新 Release
+      # 步骤5：安装 @octokit/core
+      - name: Install @octokit/core
+        run: npm install @octokit/core
+
+      # 步骤6：更新 Release
       - name: Update Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          OWNER=${{ github.repository_owner }}
-          REPO=${{ github.repository }}
-          TAG=v1.0.0  # 要更新的标签名称
-          RELEASE_NAME=v1.0.0  # 更新后的 Release 名称
-          RELEASE_BODY="Your updated release notes."  # 更新后的 Release 描述
-          ASSET_PATH=target/ethStats.jar  # JAR 文件路径
-          ASSET_NAME=ethStats.jar  # JAR 文件名
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const artifactPath = 'target/ethStats.jar';
+            const artifactName = 'ethStats.jar';
 
-          # 获取已发布的 Release 的 ID
-          RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG \
-            | jq -r '.id')
+            const { Octokit } = require("@octokit/core");
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-          if [ -z "$RELEASE_ID" ]; then
-            echo "Release '$TAG' not found."
-            exit 1
-          fi
+            const { owner, repo } = context.repo;
 
-          # 上传 JAR 文件
-          UPLOAD_URL="https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$ASSET_NAME"
-          UPLOAD_RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Content-Type: application/java-archive" \
-            --data-binary "@$ASSET_PATH" \
-            "$UPLOAD_URL")
+            const tag = 'v1.0.0';  // 替换为实际的标签名称
+            const releaseName = 'v1.0.0';  // 替换为实际的 Release 名称
 
-          # 更新 Release 的名称和描述
-          curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "tag_name": "'$TAG'",
-              "name": "'$RELEASE_NAME'",
-              "body": "'$RELEASE_BODY'"
-            }' \
-            "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID"
+            // 查找指定标签的 Release
+            const { data: releases } = await octokit.request(`GET /repos/${owner}/${repo}/releases/tags/${tag}`);
+            if (releases.length === 0) {
+              core.setFailed(`Release '${tag}' not found.`);
+              return;
+            }
+
+            const releaseId = releases[0].id;
+            const uploadUrl = `https://uploads.github.com/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${artifactName}`;
+            const file = fs.readFileSync(artifactPath);
+
+            await octokit.request(uploadUrl, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/java-archive',
+                'content-length': file.length,
+              },
+              data: file,
+            });
+
+            // 更新 Release 名称和描述
+            await octokit.request(`PATCH /repos/${owner}/${repo}/releases/${releaseId}`, {
+              tag_name: tag,
+              name: releaseName,
+              body: 'Your updated release notes.',
+            });
