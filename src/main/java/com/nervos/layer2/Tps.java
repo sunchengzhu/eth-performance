@@ -92,6 +92,9 @@ public class Tps {
             while (true) {
                 if ((command = reader.readLine()) != null) {
                     switch (command) {
+                        case "printBlockNumber":
+                            printBlockNumber();
+                            break;
                         case "tps":
                             tps();
                             break;
@@ -282,6 +285,15 @@ public class Tps {
                 printColored("区块高度: " + blockHeight + ", 出块时间: " + blockTime + ", 出块间隔: " + seconds +
                         ", 交易数: " + txSize + ", tps: " + tps + ", 交易成功率: " + successRate, Color.CYAN);
             }
+        }
+    }
+
+    private static void printBlockNumber() {
+        try {
+            BigInteger blockNumber = web3j.ethBlockNumber().send().getBlockNumber();
+            System.out.println(blockNumber);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
