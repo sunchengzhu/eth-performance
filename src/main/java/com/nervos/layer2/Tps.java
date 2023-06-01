@@ -25,12 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Tps {
-    public static final String RESET = "\u001B[0m";
-    public static final String GREEN = "\u001B[32m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String CYAN = "\u001B[36m";
+import static com.nervos.layer2.Color.printColored;
 
+public class Tps {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     private static String[] headers = {"BlockNumber", "localTimestamp", "Interval", "TxCount", "TPS", "SuccessRate"};
 
@@ -135,6 +132,9 @@ public class Tps {
                 CompletableFuture<EthBlockNumber> futureBlockNumber = web3j.ethBlockNumber().sendAsync();
                 futureBlockNumber.thenAccept(blockNumber -> {
                     BigInteger newHeight = blockNumber.getBlockNumber();
+//                    LocalDateTime now = LocalDateTime.now();
+//                    String timestamp = formatter.format(now);
+//                    printColored("区块高度：" + newHeight + ", 时间：" + timestamp, Color.YELLOW);
                     if (newHeight.compareTo(latestBlockHeight.get()) > 0) {
                         latestBlockHeight.set(newHeight);
                         currentHeight.set(newHeight);
@@ -189,13 +189,9 @@ public class Tps {
         } else {
             tps = "无效";
         }
-        printColored("区块高度：" + currentHeight.get() + ", 出块时间：" + timestamp + ", 出块间隔：" + secondsDf.format(seconds) + ", 交易数量：" + txCount + ", tps：" + tps, Tps.GREEN);
+        printColored("区块高度：" + currentHeight.get() + ", 出块时间：" + timestamp + ", 出块间隔：" + secondsDf.format(seconds) + ", 交易数量：" + txCount + ", tps：" + tps, Color.GREEN);
         old.set(now);
         counter.getAndIncrement();
-    }
-
-    private static void printColored(String message, String color) {
-        System.out.println(color + message + WsTps.RESET);
     }
 
     public static String getSuccessRateByNumber(BigInteger blockHeight) {
@@ -284,7 +280,7 @@ public class Tps {
                 writer.flush();
 
                 printColored("区块高度: " + blockHeight + ", 出块时间: " + blockTime + ", 出块间隔: " + seconds +
-                        ", 交易数: " + txSize + ", tps: " + tps + ", 交易成功率: " + successRate, WsTps.CYAN);
+                        ", 交易数: " + txSize + ", tps: " + tps + ", 交易成功率: " + successRate, Color.CYAN);
             }
         }
     }
