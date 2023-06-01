@@ -30,25 +30,33 @@ jobs:
           name: my-artifact
           path: target/ethStats.jar
 
-      # 步骤5：更新 Releases
-      - name: Update Release
-        uses: actions/github-script@v4
+      # 步骤5：安装 @octokit/core
+      - name: Install @octokit/core
+        run: npm install @octokit/core
+
+      # 步骤6：更新 Releases
+      - name: Upload Release Asset
+        uses: actions/github-script@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { Octokit } = require("@octokit/core");
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            const fs = require('fs');
+            const artifactPath = 'target/my-artifact.jar';  // Change this to your artifact path
+            const artifactName = 'my-artifact.jar';  // Change this to your artifact's name
+            const uploadUrl = '${{ steps.create_release.outputs.upload_url }}';
+            const file = fs.readFileSync(artifactPath);
 
-            const owner = process.env.GITHUB_REPOSITORY.split("/")[0];
-            const repo = process.env.GITHUB_REPOSITORY.split("/")[1];
-            const tag = "v1.0.0"; // 更新的标签名称
-            const releaseName = "v1.0.0"; // 更新的 Release 名称
-
-            octokit.request('PATCH /repos/{owner}/{repo}/releases/{release_id}', {
-              owner: owner,
-              repo: repo,
-              release_id: context.payload.release.id,
-              tag_name: tag,
-              name: releaseName,
-              body: 'Your release notes for the updated version.'
+            const { data } = await github.repos.uploadReleaseAsset({
+              url: uploadUrl,
+              headers: {
+                'content-length': file.length,
+                'content-type': 'application/zip',
+              },
+              name: artifactName,
+              file: file
             });
+
+            if (data.url) {
+              core.info(`Uploaded release asset: ${data.url}`);
+            } else {
+              core.setFailed('Failed to upload release asset');
+            }
