@@ -10,6 +10,6 @@ dependency-reduced-pom.xml
 
 # My csv
 data.csv
-tps.csv
+performance.csv
 
 commands.txt
