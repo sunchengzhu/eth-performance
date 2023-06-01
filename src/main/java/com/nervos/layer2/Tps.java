@@ -103,7 +103,10 @@ public class Tps {
                             break;
                         case "successRate":
                             successRate();
-                            break;
+                            System.out.println(formatter.format(LocalDateTime.now()) + " webSocket正在退出...");
+                            web3j.shutdown();
+                            webSocketService.close();
+                            return;
                         case "exit":
                             System.out.println(formatter.format(LocalDateTime.now()) + " webSocket正在退出...");
                             web3j.shutdown();
