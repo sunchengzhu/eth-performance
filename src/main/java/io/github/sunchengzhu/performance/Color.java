@@ -1,4 +1,4 @@
-package com.nervos.layer2;
+package io.github.sunchengzhu.performance;
 
 public class Color {
     public static final String RESET = "\u001B[0m";

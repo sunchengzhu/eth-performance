@@ -1,4 +1,4 @@
-package com.nervos.layer2;
+package io.github.sunchengzhu.performance;
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
@@ -25,9 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.nervos.layer2.Color.printColored;
-
-public class Tps {
+public class EthStats {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     private static String[] headers = {"BlockNumber", "localTimestamp", "Interval", "TxCount", "TPS", "SuccessRate"};
 
@@ -195,7 +193,7 @@ public class Tps {
         } else {
             tps = "无效";
         }
-        printColored("区块高度：" + currentHeight.get() + ", 出块时间：" + timestamp + ", 出块间隔：" + secondsDf.format(seconds) + ", 交易数量：" + txCount + ", tps：" + tps, Color.GREEN);
+        Color.printColored("区块高度：" + currentHeight.get() + ", 出块时间：" + timestamp + ", 出块间隔：" + secondsDf.format(seconds) + ", 交易数量：" + txCount + ", tps：" + tps, Color.GREEN);
         old.set(now);
         counter.getAndIncrement();
     }
@@ -285,7 +283,7 @@ public class Tps {
                 writer.write(line + successRate);
                 writer.flush();
 
-                printColored("区块高度: " + blockHeight + ", 出块时间: " + blockTime + ", 出块间隔: " + seconds +
+                Color.printColored("区块高度: " + blockHeight + ", 出块时间: " + blockTime + ", 出块间隔: " + seconds +
                         ", 交易数: " + txSize + ", tps: " + tps + ", 交易成功率: " + successRate, Color.CYAN);
             }
         }
