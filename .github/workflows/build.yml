@@ -41,7 +41,7 @@ jobs:
             const fs = require('fs');
             const artifactPath = 'target/ethStats.jar';  // Change this to your artifact path
             const artifactName = 'ethStats.jar';  // Change this to your artifact's name
-            const uploadUrl = `https://uploads.github.com/repos/${context.repo.owner}/${context.repo.repo}/releases/${context.outputs.get_release.result}/assets{?name,label}`;
+            const uploadUrl = `https://uploads.github.com/repos/${context.repo.owner}/${context.repo.repo}/releases/${steps.get_release.outputs.result}/assets{?name,label}`;
             const file = fs.readFileSync(artifactPath);
 
             const { data } = await github.rest.repos.uploadReleaseAsset({
