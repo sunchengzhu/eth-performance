@@ -257,7 +257,7 @@ public class EthStats {
 
     public static void successRate() throws IOException {
         String inputFilePath = "data.csv";
-        String outputFilePath = "tps.csv";
+        String outputFilePath = "performance.csv";
         try (
                 BufferedReader reader = Files.newBufferedReader(Paths.get(inputFilePath));
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFilePath));
