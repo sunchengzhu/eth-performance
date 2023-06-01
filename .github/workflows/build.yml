@@ -35,28 +35,9 @@ jobs:
             return release.id;
 
       - name: Upload Release Asset
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const fs = require('fs');
-            const artifactPath = 'target/ethStats.jar';  // Change this to your artifact path
-            const artifactName = 'ethStats.jar';  // Change this to your artifact's name
-            const uploadUrl = `https://uploads.github.com/repos/${context.repo.owner}/${context.repo.repo}/releases/${steps.get_release.outputs.result}/assets{?name,label}`;
-            const file = fs.readFileSync(artifactPath);
-
-            const { data } = await github.rest.repos.uploadReleaseAsset({
-              url: uploadUrl,
-              headers: {
-                'content-length': file.length,
-                'content-type': 'application/zip',
-              },
-              name: artifactName,
-              data: file
-            });
-
-            if (data.browser_download_url) {
-              core.info(`Uploaded release asset: ${data.browser_download_url}`);
-            } else {
-              core.setFailed('Failed to upload release asset');
-            }
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          uses: actions/upload-release-asset@v1
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./target/ethStats.jar
+            asset_name: ethStats.jar
+            asset_content_type: application/zip
