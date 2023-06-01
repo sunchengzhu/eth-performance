@@ -43,7 +43,7 @@ public class EthStats {
         // 删除旧的commands.txt文件并创建新文件
         prepareCommandsFile();
 
-        String defaultWebSocketUrl = "wss://eth-mainnet.g.alchemy.com/v2/tyA5q3o8qKL_9GMtm1JniIMBfRG7vfRB";
+        String defaultWebSocketUrl = "wss://eth-mainnet.g.alchemy.com/v2/RCBd9pi7A5J4YpdugIxnyvzIFliZYZH_";
         String webSocketUrl = args.length > 0 ? args[0] : defaultWebSocketUrl;
         webSocketService = new WebSocketService(webSocketUrl, false);
         try {
