@@ -40,8 +40,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const artifactPath = 'target/my-artifact.jar';  // Change this to your artifact path
-            const artifactName = 'my-artifact.jar';  // Change this to your artifact's name
+            const artifactPath = 'target/ethStats.jar';  // Change this to your artifact path
+            const artifactName = 'ethStats.jar';  // Change this to your artifact's name
             const uploadUrl = '${{ steps.create_release.outputs.upload_url }}';
             const file = fs.readFileSync(artifactPath);
 
