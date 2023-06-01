@@ -30,33 +30,21 @@ jobs:
           name: my-artifact
           path: target/ethStats.jar
 
-      # 步骤5：安装 @octokit/core
-      - name: Install @octokit/core
-        run: npm install @octokit/core
+      # 步骤5：更新 Releases
+      - name: Update Release
+        run: |
+          OWNER=${{ github.repository_owner }}
+          REPO=${{ github.repository }}
+          RELEASE_ID=YOUR_RELEASE_ID  # 替换为实际的 Release ID
+          TAG_NAME=v1.0.0  # 替换为实际的标签名称
+          RELEASE_NAME=v1.0.0  # 替换为实际的 Release 名称
 
-      # 步骤6：更新 Releases
-      - name: Upload Release Asset
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const fs = require('fs');
-            const artifactPath = 'target/ethStats.jar';  // Change this to your artifact path
-            const artifactName = 'ethStats.jar';  // Change this to your artifact's name
-            const uploadUrl = '${{ steps.create_release.outputs.upload_url }}';
-            const file = fs.readFileSync(artifactPath);
-
-            const { data } = await github.repos.uploadReleaseAsset({
-              url: uploadUrl,
-              headers: {
-                'content-length': file.length,
-                'content-type': 'application/zip',
-              },
-              name: artifactName,
-              file: file
-            });
-
-            if (data.url) {
-              core.info(`Uploaded release asset: ${data.url}`);
-            } else {
-              core.setFailed('Failed to upload release asset');
-            }
+          # 使用 curl 或其他适合的工具发送 API 请求
+          curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID \
+            -d '{
+              "tag_name": "'$TAG_NAME'",
+              "name": "'$RELEASE_NAME'",
+              "body": "Your release notes for the updated version."
+            }'
