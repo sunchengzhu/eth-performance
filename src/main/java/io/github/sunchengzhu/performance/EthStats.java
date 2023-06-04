@@ -122,7 +122,7 @@ public class EthStats {
     }
 
     public static void tps() throws IOException {
-        Path path = Paths.get("data.csv");
+        Path path = Paths.get("tps.csv");
         BufferedWriter writer = Files.newBufferedWriter(path);
         // 写入自定义表头
         writer.write(String.join(",", headers));
@@ -256,7 +256,7 @@ public class EthStats {
 
 
     public static void successRate() throws IOException {
-        String inputFilePath = "data.csv";
+        String inputFilePath = "tps.csv";
         String outputFilePath = "performance.csv";
         try (
                 BufferedReader reader = Files.newBufferedReader(Paths.get(inputFilePath));
