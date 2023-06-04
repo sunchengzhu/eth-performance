@@ -22,6 +22,9 @@ jobs:
 
       - name: Run commands
         run: |
-          java -jar ethStats.jar
+          java -jar ethStats.jar &
+
           echo "printBlockNumber" >> commands.txt
+
           echo "exit" >> commands.txt
+
