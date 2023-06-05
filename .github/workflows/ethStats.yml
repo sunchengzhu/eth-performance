@@ -22,7 +22,7 @@ jobs:
 
       - name: Run
         run: |
-          nohup java -jar ethStats.jar &
+          nohup java -jar ethStats.jar > ./nohup.out 2>&1 &
           sleep 5
           echo "printBlockNumber" >> commands.txt
           sleep 10
