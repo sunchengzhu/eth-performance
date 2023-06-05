@@ -24,9 +24,4 @@ jobs:
         run: |
           nohup java -jar ethStats.jar &
           echo "printBlockNumber" >> commands.txt
-
-          sleep 10
-          echo 666
-          echo "printBlockNumber" >> commands.txt
-
-
+          cat commands.txt
