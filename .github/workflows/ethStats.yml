@@ -32,3 +32,4 @@ jobs:
         run: |
           echo "printBlockNumber" >> commands.txt
           cat commands.txt
+          nohup.out
