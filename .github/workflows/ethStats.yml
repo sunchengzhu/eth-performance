@@ -22,8 +22,5 @@ jobs:
 
       - name: Run commands concurrently
         run: |
-          (java -jar ethStats.jar; echo "Java command finished with exit code $?") &
-          PID1=$!
-          (echo "printBlockNumber" >> commands.txt; echo "Echo command finished with exit code $?") &
-          PID2=$!
-          wait $PID1 $PID2
+          nohup java -jar ethStats.jar &
+          echo "printBlockNumber" >> commands.txt
