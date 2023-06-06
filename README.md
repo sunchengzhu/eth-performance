@@ -58,4 +58,4 @@ echo "successRate" >> commands.txt
 
 ## 其他用法
 
-在[actions](https://github.com/sunchengzhu/eth-performance/actions/workflows/ethStats.yml)中手动触发
+在[actions](https://github.com/sunchengzhu/eth-performance/actions/workflows/ethStats.yml)中手动触发，统计2分钟的性能数据。
