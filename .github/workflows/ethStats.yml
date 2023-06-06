@@ -32,7 +32,7 @@ jobs:
           sleep 120
           echo "stopTps" >> commands.txt
           sleep 5
-          echo "exit" >> commands.txt
+          echo "successRate" >> commands.txt
 
       - name: Check logs
         run: |
