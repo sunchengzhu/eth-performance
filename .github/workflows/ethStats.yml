@@ -35,7 +35,7 @@ jobs:
 
       - name: Check logs
         run: |
-          tail -f nohup.out | while read LOGLINE
+          tail -f ethStats.log | while read LOGLINE
           do
              [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
           done
