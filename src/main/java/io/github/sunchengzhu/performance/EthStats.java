@@ -55,7 +55,7 @@ public class EthStats {
 
         // 在JVM退出时打印当前时间
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println(formatter.format(LocalDateTime.now()) + " JVM正在退出...");
+            System.out.println(formatter.format(LocalDateTime.now(ZoneId.of("Asia/Shanghai"))) + " JVM正在退出...");
         }));
 
         // 开始监听命令
@@ -101,12 +101,12 @@ public class EthStats {
                             break;
                         case "successRate":
                             successRate();
-                            System.out.println(formatter.format(LocalDateTime.now()) + " webSocket正在退出...");
+                            System.out.println(formatter.format(LocalDateTime.now(ZoneId.of("Asia/Shanghai"))) + " webSocket正在退出...");
                             web3j.shutdown();
                             webSocketService.close();
                             return;
                         case "exit":
-                            System.out.println(formatter.format(LocalDateTime.now()) + " webSocket正在退出...");
+                            System.out.println(formatter.format(LocalDateTime.now(ZoneId.of("Asia/Shanghai"))) + " webSocket正在退出...");
                             web3j.shutdown();
                             webSocketService.close();
                             return;
