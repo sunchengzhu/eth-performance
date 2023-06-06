@@ -2,6 +2,10 @@ name: ethStats
 
 on:
   workflow_dispatch:
+    inputs:
+      jarArg:
+        description: 'The argument to pass to the Java jar command'
+        required: true
 
 jobs:
   run-commands:
@@ -22,8 +26,8 @@ jobs:
 
       - name: Run
         run: |
-          nohup java -jar ethStats.jar > ./nohup.out 2>&1 &
+          nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./nohup.out 2>&1 &
           sleep 5
           echo "printBlockNumber" >> commands.txt
-          sleep 10
+          sleep 3
           cat nohup.out
