@@ -27,12 +27,12 @@ jobs:
       - name: Run
         run: |
           nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./ethStats.log 2>&1 &
-          sleep 3
+          sleep 5
           echo "tps" >> commands.txt
           sleep 120
           echo "stopTps" >> commands.txt
-          sleep 3
           echo "successRate" >> commands.txt
+          echo "exit" >> commands.txt
 
       - name: Check logs
         run: |
