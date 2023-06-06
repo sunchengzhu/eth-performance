@@ -31,7 +31,8 @@ jobs:
           echo "tps" >> commands.txt
           sleep 120
           echo "stopTps" >> commands.txt
-          echo "successRate" >> commands.txt
+          sleep 5
+          echo "exit" >> commands.txt
 
       - name: Check logs
         run: |
