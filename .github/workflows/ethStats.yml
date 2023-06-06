@@ -33,14 +33,12 @@ jobs:
           echo "stopTps" >> commands.txt
           sleep 3
           echo "successRate" >> commands.txt
-          sleep 3
-          echo "exit" >> commands.txt
 
       - name: Check logs
         run: |
           tail -f ethStats.log | while read LOGLINE
           do
-             [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
+             [[ "${LOGLINE}" == *"webSocket正在退出"* ]] && pkill -P $$ tail
           done
           tail -n 2 ethStats.log
 
