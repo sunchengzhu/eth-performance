@@ -5,7 +5,7 @@ on:
     inputs:
       jarArg:
         description: 'The argument to pass to the Java jar command'
-        required: true
+        required: false
 
 jobs:
   run-commands:
@@ -29,5 +29,13 @@ jobs:
           nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./nohup.out 2>&1 &
           sleep 5
           echo "printBlockNumber" >> commands.txt
-          sleep 3
+          echo "exit" >> commands.txt
+
+      - name: Check logs
+        run: |
+          echo 'checking logs...'
+          tail -f nohup.out | while read LOGLINE
+          do
+             [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
+          done
           cat nohup.out
