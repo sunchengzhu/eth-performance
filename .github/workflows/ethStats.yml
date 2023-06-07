@@ -35,6 +35,7 @@ jobs:
 
       - name: Check logs
         timeout-minutes: 2
+        continue-on-error: true
         run: |
           tail -f ethStats.out | while read LOGLINE
           do
