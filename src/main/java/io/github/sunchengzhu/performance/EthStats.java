@@ -2,10 +2,7 @@ package io.github.sunchengzhu.performance;
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.EthBlockNumber;
-import org.web3j.protocol.core.methods.response.EthGetBlockTransactionCountByNumber;
-import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.web3j.protocol.core.methods.response.*;
 import org.web3j.protocol.websocket.WebSocketService;
 
 import java.io.*;
@@ -203,11 +200,29 @@ public class EthStats {
     public static String getSuccessRateByNumber(BigInteger blockHeight) {
         DefaultBlockParameter blockParameter = DefaultBlockParameter.valueOf(blockHeight);
         EthBlock.Block block = null;
-        try {
-            block = web3j.ethGetBlockByNumber(blockParameter, false).send().getBlock();
-        } catch (IOException e) {
-            e.printStackTrace();
+        int retryCount = 0;
+        while (block == null && retryCount < 3) {
+            try {
+                block = web3j.ethGetBlockByNumber(blockParameter, false).send().getBlock();
+            } catch (IOException e) {
+                e.printStackTrace();
+                retryCount++;
+                if (retryCount < 3) {
+                    System.out.println("Retry getting block " + blockHeight + ", attempt " + (retryCount+1));
+                    try {
+                        Thread.sleep(1000);  // sleep for 1 second before retry
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
         }
+
+        if (block == null) {
+            System.out.println("Failed to get block " + blockHeight + " after 3 attempts");
+            return "获取区块失败";
+        }
+
         List<EthBlock.TransactionResult> transactions = block.getTransactions();
 
         int txSize = transactions.size();
@@ -223,9 +238,13 @@ public class EthStats {
             futures.add(executorService.submit(() -> {
                 String txHash = transaction.get().toString();
                 try {
-                    EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).sendAsync().get(10, TimeUnit.SECONDS); //设置超时时间
-                    return transactionReceipt.getTransactionReceipt().get().getStatus().equals("0x1");
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).send();
+                    // Safely get the status
+                    String status = transactionReceipt.getTransactionReceipt()
+                            .map(TransactionReceipt::getStatus)
+                            .orElse("0x0");  // use a default value
+                    return status.equals("0x1");
+                } catch (IOException e) {
                     e.printStackTrace();
                     return false;
                 }
