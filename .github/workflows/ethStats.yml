@@ -34,6 +34,7 @@ jobs:
           echo "successRate" >> commands.txt
 
       - name: Check logs
+        timeout-minutes: 2
         run: |
           tail -f ethStats.out | while read LOGLINE
           do
