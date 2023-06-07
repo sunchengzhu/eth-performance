@@ -31,6 +31,7 @@ public class EthStats {
 
     private static WebSocketService webSocketService;
     private static Web3j web3j;
+    private static ScheduledExecutorService executor;
 
     private static final AtomicReference<BigInteger> latestBlockHeight = new AtomicReference<>(BigInteger.ZERO);
     private static final AtomicReference<BigInteger> currentHeight = new AtomicReference<>(BigInteger.ZERO);
@@ -128,7 +129,7 @@ public class EthStats {
         writer.write(String.join(",", headers));
         writer.flush();
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
             if (!isRunning.get()) {
                 executor.shutdown();
@@ -168,6 +169,7 @@ public class EthStats {
 
     public static void stopRunning() {
         isRunning.set(false);
+        executor.shutdown();
     }
 
     private static void processNewBlockHeight(BufferedWriter writer, BigInteger txCount) {
@@ -221,9 +223,9 @@ public class EthStats {
             futures.add(executorService.submit(() -> {
                 String txHash = transaction.get().toString();
                 try {
-                    EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).send();
+                    EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).sendAsync().get(10, TimeUnit.SECONDS); //设置超时时间
                     return transactionReceipt.getTransactionReceipt().get().getStatus().equals("0x1");
-                } catch (IOException e) {
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
                     e.printStackTrace();
                     return false;
                 }

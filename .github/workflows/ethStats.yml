@@ -26,20 +26,20 @@ jobs:
 
       - name: Run
         run: |
-          nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./ethStats.log 2>&1 &
+          nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./ethStats.out 2>&1 &
           sleep 5
           echo "tps" >> commands.txt
           sleep 120
           echo "stopTps" >> commands.txt
-          echo "exit" >> commands.txt
+          echo "successRate" >> commands.txt
 
       - name: Check logs
         run: |
-          tail -f ethStats.log | while read LOGLINE
+          tail -f ethStats.out | while read LOGLINE
           do
-             [[ "${LOGLINE}" == *"webSocket正在退出"* ]] && pkill -P $$ tail
+             [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
           done
-          tail -n 2 ethStats.log
+          tail -n 2 ethStats.out
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
@@ -47,6 +47,6 @@ jobs:
           name: files
           path: |
             commands.txt
-            ethStats.log
+            ethStats.out
             tps.csv
             performance.csv
