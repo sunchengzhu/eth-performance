@@ -6,7 +6,7 @@
 
 ## 使用actions
 
-在[actions](https://github.com/sunchengzhu/eth-performance/actions/workflows/ethStats.yml)中手动触发，统计2分钟的性能数据。
+在[actions](https://github.com/sunchengzhu/eth-performance/actions/workflows/ethStats.yml)中手动触发，统计指定分钟数的性能数据，不传入参数的话默认连以太坊主网统计两分钟。
 
 ## 使用jar包
 
