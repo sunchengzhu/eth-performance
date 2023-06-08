@@ -1,0 +1,24 @@
+name: Workflow A
+
+on:
+  workflow_dispatch:
+    inputs:
+      my_input:
+        description: 'My Input'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set output data
+        id: set_data
+        run: |
+          echo "::set-output name=data::Hello from Workflow A"
+
+      - name: Trigger Workflow B
+        uses: peter-evans/trigger-workflow@v2
+        with:
+          workflow: Workflow B
+          token: ${{ secrets.GITHUB_TOKEN }}
+          data: ${{ steps.set_data.outputs.data }}
