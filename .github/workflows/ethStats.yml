@@ -6,6 +6,10 @@ on:
       jarArg:
         description: 'The argument to pass to the Java jar command'
         required: false
+      tpsDuration:
+        description: 'Duration of TPS function execution in minutes'
+        required: false
+        default: '2'
 
 jobs:
   run-commands:
@@ -29,7 +33,7 @@ jobs:
           nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./ethStats.out 2>&1 &
           sleep 5
           echo "tps" >> commands.txt
-          sleep 120
+          sleep $(( ${{ github.event.inputs.tpsDuration }} * 60 ))
           echo "stopTps" >> commands.txt
           echo "successRate" >> commands.txt
 
