@@ -35,7 +35,6 @@ jobs:
 
       - name: Check logs
         timeout-minutes: 2
-        continue-on-error: true
         run: |
           tail -f ethStats.out | while read LOGLINE
           do
@@ -44,6 +43,7 @@ jobs:
           tail -n 2 ethStats.out
 
       - name: Archive production artifacts
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: files
