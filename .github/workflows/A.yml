@@ -17,7 +17,7 @@ jobs:
           echo "::set-output name=data::Hello from Workflow A"
 
       - name: Trigger Workflow B
-        uses: sunchengzhu/eth-performance/actions@main
+        uses: sunchengzhu/eth-performance/actions
         with:
           workflow: Workflow B
           token: ${{ secrets.GITHUB_TOKEN }}
