@@ -10,6 +10,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
       - name: Download jar file
         run: |
           wget https://github.com/sunchengzhu/eth-performance/releases/download/v1.0.0/ethStats.jar
