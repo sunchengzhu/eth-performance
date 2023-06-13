@@ -16,7 +16,7 @@ jobs:
           # https://gist.github.com/sunchengzhu/5ad4ca3b06f39c2d56cd2b1aa8f25204
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
         run: |
-          echo "printBlockNumber" >> commands.txt
+          echo "printBlockNumber" > commands.txt
           curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d @- << EOF
           {
             "description": "Updated gist",
@@ -28,7 +28,7 @@ jobs:
           }
           EOF
           sleep 30
-          echo "successRate" >> commands.txt
+          echo "successRate" > commands.txt
           curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d @- << EOF
           {
             "description": "Updated gist",
