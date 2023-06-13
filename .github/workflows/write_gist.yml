@@ -24,14 +24,14 @@ jobs:
           echo "tps" > commands.txt
           update_gist
 
-          sleep 60
+          sleep 120
           echo "stopTps" > commands.txt
           update_gist
 
-          sleep 10
+          sleep 5
           echo "successRate" > commands.txt
           update_gist
 
-          sleep 10
+          sleep 5
           echo "printBlockNumber" > commands.txt
           update_gist
