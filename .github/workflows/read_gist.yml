@@ -34,9 +34,6 @@ jobs:
             fi
           done
 
-      - name: Check logs
-        timeout-minutes: 2
-        run: |
           tail -f ethStats.log | while read LOGLINE
           do
              [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
