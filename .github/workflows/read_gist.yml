@@ -43,7 +43,6 @@ jobs:
           do
              [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
           done
-          tail -n 2 ethStats.log
 
       - name: Archive production artifacts
         if: always()
