@@ -10,6 +10,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Run ethStats
+        run: |
+          java -jar ethStats.jar &
+
       - name: Read Gist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
