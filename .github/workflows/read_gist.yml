@@ -19,11 +19,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
         run: |
-          java -jar ethStats.jar &
+          java -jar ethStats.jar > ethStats.log 2>&1 &
           PREV_GIST_CONTENT=""
           while true; do
             sleep 5
-            GIST_CONTENT=$(curl -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID | jq -r '.files["commands.txt"].content')
+            GIST_CONTENT=$({ curl -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID | jq -r '.files["commands.txt"].content'; } 2>/dev/null)
+            echo $GIST_CONTENT >> commands.txt
             if [ "$GIST_CONTENT" != "$PREV_GIST_CONTENT" ]; then
               echo $GIST_CONTENT >> commands.txt
               PREV_GIST_CONTENT=$GIST_CONTENT
@@ -32,3 +33,23 @@ jobs:
               break
             fi
           done
+
+      - name: Check logs
+        timeout-minutes: 2
+        run: |
+          tail -f ethStats.log | while read LOGLINE
+          do
+             [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
+          done
+          tail -n 2 ethStats.log
+
+      - name: Archive production artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: files
+          path: |
+            commands.txt
+            ethStats.log
+            tps.csv
+            performance.csv
