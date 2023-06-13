@@ -29,7 +29,7 @@ jobs:
           PREV_GIST_CONTENT=""
           while true; do
             sleep 5
-            GIST_CONTENT=$({ curl -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID | jq -r '.files["commands.txt"].content'; } 2>/dev/null)
+            GIST_CONTENT=$(curl -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID | jq -r '.files["commands.txt"].content')
             if [ "$GIST_CONTENT" != "$PREV_GIST_CONTENT" ]; then
               echo $GIST_CONTENT >> commands.txt
               PREV_GIST_CONTENT=$GIST_CONTENT
