@@ -19,7 +19,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
         run: |
-          java -jar ethStats.jar 2>&1 | tee ethStats.log
+          java -jar ethStats.jar > ethStats.log 2>&1
           PREV_GIST_CONTENT=""
           while true; do
             sleep 5
