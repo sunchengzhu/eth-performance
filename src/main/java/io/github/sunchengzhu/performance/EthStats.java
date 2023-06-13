@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -208,7 +209,7 @@ public class EthStats {
                 e.printStackTrace();
                 retryCount++;
                 if (retryCount < 3) {
-                    System.out.println("Retry getting block " + blockHeight + ", attempt " + (retryCount+1));
+                    System.out.println("Retry getting block " + blockHeight + ", attempt " + (retryCount + 1));
                     try {
                         Thread.sleep(1000);  // sleep for 1 second before retry
                     } catch (InterruptedException ie) {
@@ -237,17 +238,34 @@ public class EthStats {
         for (EthBlock.TransactionResult transaction : transactions) {
             futures.add(executorService.submit(() -> {
                 String txHash = transaction.get().toString();
-                try {
-                    EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).send();
-                    // Safely get the status
-                    String status = transactionReceipt.getTransactionReceipt()
-                            .map(TransactionReceipt::getStatus)
-                            .orElse("0x0");  // use a default value
-                    return status.equals("0x1");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
+                Optional<TransactionReceipt> transactionReceiptOptional = Optional.empty();
+                int attempts = 0;
+                while (attempts < 5 && !transactionReceiptOptional.isPresent()) {
+                    try {
+                        EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).send();
+                        transactionReceiptOptional = transactionReceipt.getTransactionReceipt();
+                        attempts++;
+                    } catch (IOException e) {
+                        attempts++;
+                        System.out.println("Error fetching transaction receipt for hash: " + txHash + ", attempt: " + attempts);
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
                 }
+
+                String status = "0x0";  // Default status if we failed to fetch the transaction receipt
+
+                if (transactionReceiptOptional.isPresent()) {
+                    // Safely get the status
+                    status = transactionReceiptOptional.map(TransactionReceipt::getStatus).get();
+                } else {
+                    System.out.println("Failed to fetch transaction receipt for hash: " + txHash);
+                }
+
+                return status.equals("0x1");
             }));
         }
 
