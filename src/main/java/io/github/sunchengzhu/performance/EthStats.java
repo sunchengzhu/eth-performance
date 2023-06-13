@@ -265,6 +265,10 @@ public class EthStats {
                     System.out.println("Failed to fetch transaction receipt for hash: " + txHash);
                 }
 
+                if (status.equals("0x0")) {
+                    System.out.println("区块高度: " + blockHeight + ", 失败交易hash: " + txHash);
+                }
+
                 return status.equals("0x1");
             }));
         }
