@@ -20,6 +20,7 @@ jobs:
             curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d "${JSON_DATA}"
           }
 
+          sleep 3
           echo "tps" > commands.txt
           update_gist
 
