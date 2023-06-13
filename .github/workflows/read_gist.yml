@@ -17,6 +17,7 @@ jobs:
       - name: Run ethStats
         run: |
           java -jar ethStats.jar &
+          sleep 5
 
       - name: Read Gist
         env:
@@ -24,4 +25,5 @@ jobs:
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
         run: |
           GIST_CONTENT=$(curl -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID | jq -r '.files["commands.txt"].content')
-          echo $GIST_CONTENT
+          echo $GIST_CONTENT >> commands.txt
+          sleep 10
