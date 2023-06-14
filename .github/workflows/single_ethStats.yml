@@ -1,4 +1,4 @@
-name: EthStats
+name: Single EthStats
 
 on:
   workflow_dispatch:
@@ -6,13 +6,17 @@ on:
       jarArg:
         description: 'The argument to pass to the Java jar command'
         required: false
+      tpsDuration:
+        description: 'Duration of TPS function execution in minutes'
+        required: false
+        default: '2'
 
 jobs:
-  read_gist:
+  run-commands:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -24,30 +28,23 @@ jobs:
         run: |
           wget https://github.com/sunchengzhu/eth-performance/releases/download/v1.0.0/ethStats.jar
 
-      - name: Run ethStats
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIST_ID: 5c79cf6182d23299a7b0272a1fa18ff3
+      - name: Run
         run: |
-          (java -jar ethStats.jar ${{ github.event.inputs.jarArg }} | tee ethStats.log) &
+          nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./ethStats.out 2>&1 &
+          sleep 5
+          echo "tps" >> commands.txt
+          sleep $(( ${{ github.event.inputs.tpsDuration }} * 60 ))
+          echo "stopTps" >> commands.txt
+          echo "successRate" >> commands.txt
 
-          PREV_GIST_CONTENT=""
-          while true; do
-            sleep 2
-            GIST_CONTENT=$(curl -s -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID | jq -r '.files["commands.txt"].content')
-            if [ "$GIST_CONTENT" != "$PREV_GIST_CONTENT" ]; then
-              echo $GIST_CONTENT >> commands.txt
-              PREV_GIST_CONTENT=$GIST_CONTENT
-            fi
-            if [ "$GIST_CONTENT" == "successRate" ]; then
-              break
-            fi
-          done
-
-          tail -f ethStats.log | while read LOGLINE
+      - name: Check logs
+        timeout-minutes: 2
+        run: |
+          tail -f ethStats.out | while read LOGLINE
           do
              [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
           done
+          tail -n 2 ethStats.out
 
       - name: Archive production artifacts
         if: always()
@@ -56,5 +53,6 @@ jobs:
           name: files
           path: |
             commands.txt
+            ethStats.out
             tps.csv
             performance.csv
