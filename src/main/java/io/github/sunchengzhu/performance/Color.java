@@ -1,4 +1,4 @@
-package io.github.sunchengzhu.performance;
+import java.util.TimeZone;
 
 public class Color {
     public static final String RESET = "\u001B[0m";
@@ -7,6 +7,9 @@ public class Color {
     public static final String CYAN = "\u001B[36m";
 
     public static void printColored(String message, String color) {
+        // 设置时区为中国
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+
         System.out.println(color + message + Color.RESET);
     }
 }
