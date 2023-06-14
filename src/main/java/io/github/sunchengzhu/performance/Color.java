@@ -1,3 +1,5 @@
+package io.github.sunchengzhu.performance;
+
 import java.util.TimeZone;
 
 public class Color {
