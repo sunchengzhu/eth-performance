@@ -39,7 +39,7 @@ jobs:
             -H "Authorization: token $GH_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/sunchengzhu/eth-performance/actions/workflows/write_gist.yml/dispatches \
-            -d '{"ref":"main", "inputs": {"tpsDuration": ${{ github.event.inputs.tpsDuration }}}}'
+            -d '{"ref":"main", "inputs": {"tpsDuration": "'${{ github.event.inputs.tpsDuration }}'"}'
 
           PREV_GIST_CONTENT=""
           while true; do
