@@ -2,10 +2,11 @@ name: Write Gist
 
 on:
   workflow_dispatch:
-    tpsDuration:
-      description: 'Duration of TPS function execution in minutes'
-      required: false
-      default: '1'
+    inputs:
+      tpsDuration:
+        description: 'Duration of TPS function execution in minutes'
+        required: false
+        default: '1'
 
 jobs:
   write_gist:
