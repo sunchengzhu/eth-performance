@@ -2,6 +2,10 @@ name: Read Gist
 
 on:
   workflow_dispatch:
+    inputs:
+      jarArg:
+        description: 'The argument to pass to the Java jar command'
+        required: false
 
 jobs:
   read_gist:
@@ -25,7 +29,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
         run: |
-          (java -jar ethStats.jar | tee ethStats.log) &
+          (java -jar ethStats.jar ${{ github.event.inputs.jarArg }} | tee ethStats.log) &
 
           curl -X POST \
           -H "Authorization: token $GH_TOKEN" \
