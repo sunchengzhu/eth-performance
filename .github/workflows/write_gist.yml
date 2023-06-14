@@ -15,16 +15,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Define update_gist function
-        run: |
-          echo 'update_gist() { cmd=$1; JSON_DATA=$(printf '"'"'{"description": "Updated gist","files": {"commands.txt": {"content": "%s"}}}'"'"' "$cmd"); curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d "${JSON_DATA}"; }' >> $GITHUB_ENV
+      - name: Write Gist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
-
-      - name: Write Gist
         run: |
-          eval "$(echo $update_gist)"
+          update_gist() {
+            cmd=$1
+            JSON_DATA=$(printf '{"description": "Updated gist","files": {"commands.txt": {"content": "%s"}}}' "$cmd")
+            curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d "${JSON_DATA}"
+          }
 
           update_gist "tps"
 
