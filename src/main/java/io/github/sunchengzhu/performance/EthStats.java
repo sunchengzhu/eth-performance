@@ -240,7 +240,7 @@ public class EthStats {
                 String txHash = transaction.get().toString();
                 Optional<TransactionReceipt> transactionReceiptOptional = Optional.empty();
                 int attempts = 0;
-                while (attempts < 5 && !transactionReceiptOptional.isPresent()) {
+                while (attempts < 10 && !transactionReceiptOptional.isPresent()) {
                     try {
                         EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).send();
                         transactionReceiptOptional = transactionReceipt.getTransactionReceipt();
@@ -261,12 +261,11 @@ public class EthStats {
                 if (transactionReceiptOptional.isPresent()) {
                     // Safely get the status
                     status = transactionReceiptOptional.map(TransactionReceipt::getStatus).get();
+                    if (status.equals("0x0")) {
+                        System.out.println("区块高度: " + blockHeight + ", 失败交易hash: " + txHash);
+                    }
                 } else {
                     System.out.println("Failed to fetch transaction receipt for hash: " + txHash);
-                }
-
-                if (status.equals("0x0")) {
-                    System.out.println("区块高度: " + blockHeight + ", 失败交易hash: " + txHash);
                 }
 
                 return status.equals("0x1");
