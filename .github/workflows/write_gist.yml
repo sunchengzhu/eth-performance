@@ -15,28 +15,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Write Gist
+      - name: Define update_gist function
+        run: |
+          echo 'update_gist() { cmd=$1; JSON_DATA=$(printf '"'"'{"description": "Updated gist","files": {"commands.txt": {"content": "%s"}}}'"'"' "$cmd"); curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d "${JSON_DATA}"; }' >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: 5ad4ca3b06f39c2d56cd2b1aa8f25204
-        run: |
-          function update_gist {
-            JSON_DATA=$(printf '{"description": "Updated gist","files": {"commands.txt": {"content": "%s"}}}' "$(cat commands.txt)")
-            curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d "${JSON_DATA}"
-          }
 
-          sleep 3
-          echo "tps" > commands.txt
-          update_gist
+      - name: Write Gist
+        run: |
+          eval "$(echo $update_gist)"
+
+          update_gist "tps"
 
           sleep $(( ${{ github.event.inputs.tpsDuration }} * 60 ))
-          echo "stopTps" > commands.txt
-          update_gist
+          update_gist "stopTps"
 
           sleep 5
-          echo "successRate" > commands.txt
-          update_gist
+          update_gist "successRate"
 
           sleep 5
-          echo "printBlockNumber" > commands.txt
-          update_gist
+          update_gist "printBlockNumber"
