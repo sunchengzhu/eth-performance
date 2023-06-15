@@ -36,7 +36,8 @@ public class EthStats {
     private static final AtomicReference<LocalDateTime> old = new AtomicReference<>(LocalDateTime.now());
     private static final AtomicInteger counter = new AtomicInteger();
     private static AtomicBoolean isRunning = new AtomicBoolean(true);
-
+    // 增加一个全局变量来保存线程池的大小
+    private static int threadPoolSize = 10;
 
     public static void main(String[] args) {
         // 删除旧的commands.txt文件并创建新文件
@@ -44,6 +45,9 @@ public class EthStats {
 
         String defaultWebSocketUrl = "wss://eth-mainnet.g.alchemy.com/v2/RCBd9pi7A5J4YpdugIxnyvzIFliZYZH_";
         String webSocketUrl = args.length > 0 ? args[0] : defaultWebSocketUrl;
+        if (!webSocketUrl.equals(defaultWebSocketUrl)) {
+            threadPoolSize = 100;
+        }
         webSocketService = new WebSocketService(webSocketUrl, false);
         try {
             webSocketService.connect();
@@ -233,7 +237,7 @@ public class EthStats {
             return successRate;
         }
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
         List<Future<Boolean>> futures = new ArrayList<>();
         for (EthBlock.TransactionResult transaction : transactions) {
             futures.add(executorService.submit(() -> {
