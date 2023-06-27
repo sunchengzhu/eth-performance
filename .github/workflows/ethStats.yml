@@ -6,6 +6,9 @@ on:
       jarArg:
         description: 'The argument to pass to the Java jar command'
         required: false
+      gistId:
+        description: 'Gist ID'
+        required: true
 
 jobs:
   read_gist:
@@ -27,7 +30,7 @@ jobs:
       - name: Run ethStats
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIST_ID: 5c79cf6182d23299a7b0272a1fa18ff3
+          GIST_ID: ${{ github.event.inputs.gistId }}
         run: |
           (java -jar ethStats.jar ${{ github.event.inputs.jarArg }} | tee ethStats.log) &
 
@@ -58,3 +61,16 @@ jobs:
             commands.txt
             tps.csv
             performance.csv
+
+      - name: Initialize commands.txt
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GIST_ID: ${{ github.event.inputs.gistId }}
+        run: |
+          update_gist() {
+            cmd=$1
+            JSON_DATA=$(printf '{"description": "Updated gist","files": {"commands.txt": {"content": "%s"}}}' "$cmd")
+            curl -X PATCH -H "Authorization: token $GH_TOKEN" https://api.github.com/gists/$GIST_ID -d "${JSON_DATA}"
+          }
+
+          update_gist "printBlockNumber"
