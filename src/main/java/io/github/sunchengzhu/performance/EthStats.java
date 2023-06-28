@@ -46,7 +46,7 @@ public class EthStats {
         String defaultWebSocketUrl = "wss://eth-mainnet.g.alchemy.com/v2/RCBd9pi7A5J4YpdugIxnyvzIFliZYZH_";
         String webSocketUrl = args.length > 0 ? args[0] : defaultWebSocketUrl;
         if (!webSocketUrl.equals(defaultWebSocketUrl)) {
-            threadPoolSize = 100;
+            threadPoolSize = 50;
         }
         webSocketService = new WebSocketService(webSocketUrl, false);
         try {
