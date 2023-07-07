@@ -31,6 +31,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: ${{ github.event.inputs.gistId }}
+        timeout-minutes: 60
         run: |
           (java -jar ethStats.jar ${{ github.event.inputs.jarArg }} | tee ethStats.log) &
 
