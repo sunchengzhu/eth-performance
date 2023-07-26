@@ -25,19 +25,31 @@ jobs:
       - name: Get release ID
         id: get_release_id
         run: |
-          echo "::set-output name=release_id::$(curl --silent "https://api.github.com/repos/sunchengzhu/eth-performance/releases/tags/v1.0.0" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | jq .id)"
+          echo "::set-output name=release_id::$(curl --silent "https://api.github.com/repos/sunchengzhu/eth-performance/releases/tags/v1.0.0" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | jq -r .id)"
 
-      - name: Delete old release asset
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Get assets
+        id: get_assets
         run: |
-          asset_id=$(jq .id old_release_asset.json)
-          curl --request DELETE \
-            --url https://api.github.com/repos/sunchengzhu/eth-performance/releases/assets/$asset_id \
-            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'
+          echo "::set-output name=assets::$(curl --silent "https://api.github.com/repos/sunchengzhu/eth-performance/releases/tags/v1.0.0" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | jq -r .assets)"
+
+      - name: Delete old release assets
+        run: |
+          for asset in $(echo "${{ steps.get_assets.outputs.assets }}" | jq -r '.[] | .id'); do
+            curl -L \
+              -X DELETE \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/sunchengzhu/eth-performance/releases/assets/$asset
+          done
 
       - name: Upload new release asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: https://api.github.com/repos/sunchengzhu/eth-performance/releases/${{ steps.get_release_id.outputs.release_id }}/assets
-          asset_path: ./target/your-artifact-1.0.0.jar
-          asset_name: your-artifact-1.0.0.jar
+          asset_path: ./target/ethStats.jar
+          asset_name: ethStats.jar
           asset_content_type: application/zip
