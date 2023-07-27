@@ -33,8 +33,9 @@ jobs:
       - name: Get assets
         id: get_assets
         run: |
-          echo "::set-output name=assets::$(curl --silent "https://api.github.com/repos/sunchengzhu/eth-performance/releases/tags/v1.0.0" -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" | jq -r .assets)"
-          echo "${{ steps.get_assets.outputs.assets }}"
+          assets=$(curl --silent "https://api.github.com/repos/sunchengzhu/eth-performance/releases/tags/v1.0.0" -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" | jq -r .assets)
+          echo "assets=${assets}" >> $GITHUB_ENV
+          echo "${assets}"
 
       - name: Delete old release assets
         run: |
