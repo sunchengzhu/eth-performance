@@ -1,4 +1,4 @@
-name: Package and upload release asset
+name: Package
 
 on:
   push:
