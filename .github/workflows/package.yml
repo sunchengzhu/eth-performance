@@ -47,9 +47,10 @@ jobs:
           done
 
       - name: Upload new release asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: https://api.github.com/repos/sunchengzhu/eth-performance/releases/${{ steps.get_release_id.outputs.release_id }}/assets
-          asset_path: ./target/ethStats.jar
-          asset_name: ethStats.jar
-          asset_content_type: application/zip
+        run: |
+          curl -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+               -H "Content-Type: application/zip" \
+               -H "Accept: application/vnd.github.v3+json" \
+               --data-binary @./target/ethStats.jar \
+               "https://uploads.github.com/repos/sunchengzhu/eth-performance/releases/${{ steps.get_release_id.outputs.release_id }}/assets?name=ethStats.jar"
+
