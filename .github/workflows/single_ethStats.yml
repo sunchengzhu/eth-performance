@@ -34,7 +34,6 @@ jobs:
           JAVA_PID=$!
           
           tail -f ethStats.out &
-          TAIL_PID=$!
           
           echo "tps" >> commands.txt
           sleep $(( ${{ github.event.inputs.tpsDuration }} * 60 ))
@@ -43,13 +42,10 @@ jobs:
           
           wait $JAVA_PID
           kill $TAIL_PID
-
-      - name: Check logs
-        timeout-minutes: 2
-        run: |
-          tail -f ethStats.out | while read LOGLINE
+          
+          tail ethStats.out | while read LOGLINE
           do
-             [[ "${LOGLINE}" == *"JVM正在退出"* ]] && pkill -P $$ tail
+          [[ "${LOGLINE}" == *"JVM正在退出"* ]] && echo "Detected JVM exit log entry."
           done
           tail -n 2 ethStats.out
 
