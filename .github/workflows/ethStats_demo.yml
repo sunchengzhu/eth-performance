@@ -1,4 +1,4 @@
-name: Read Gist
+name: EthStats Demo
 
 on:
   workflow_dispatch:

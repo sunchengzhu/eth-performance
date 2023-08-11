@@ -6,7 +6,7 @@
 
 ## 使用actions
 
-在[actions](https://github.com/sunchengzhu/eth-performance/actions/workflows/single_ethStats.yml)中手动触发，统计指定分钟数的性能数据，不传入参数的话默认连以太坊主网。
+在[actions](https://github.com/sunchengzhu/eth-performance/actions/workflows/ethStats_demo.yml)中手动触发，统计指定分钟数的性能数据，不传入参数的话默认连以太坊主网。
 
 ## 使用jar包
 
