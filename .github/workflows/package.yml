@@ -9,6 +9,7 @@ on:
 
 jobs:
   package:
+    if: github.repository == 'sunchengzhu/eth-performance'
     runs-on: ubuntu-latest
 
     steps:
