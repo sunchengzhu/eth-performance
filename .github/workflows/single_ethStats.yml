@@ -32,10 +32,16 @@ jobs:
         run: |
           nohup java -jar ethStats.jar ${{ github.event.inputs.jarArg }} > ./ethStats.out 2>&1 &
           sleep 5
+          
+          tail -f ethStats.out &
+          TAIL_PID=$!
+          
           echo "tps" >> commands.txt
           sleep $(( ${{ github.event.inputs.tpsDuration }} * 60 ))
           echo "stopTps" >> commands.txt
           echo "successRate" >> commands.txt
+          
+          kill $TAIL_PID
 
       - name: Check logs
         timeout-minutes: 2
