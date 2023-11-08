@@ -15,9 +15,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,6 +36,9 @@ public class EthStats {
     private static AtomicBoolean isRunning = new AtomicBoolean(true);
     // 增加一个全局变量来保存线程池的大小
     private static int threadPoolSize = 10;
+    private static String inputFilePath = "tps.csv";
+    private static String outputFilePath = "performance.csv";
+    private static final int LINES_TO_READ = 10;
 
     public static void main(String[] args) {
         // 删除旧的commands.txt文件并创建新文件
@@ -104,6 +105,12 @@ public class EthStats {
                             break;
                         case "successRate":
                             successRate();
+                            System.out.println(formatter.format(LocalDateTime.now(ZoneId.of("Asia/Shanghai"))) + " webSocket正在退出...");
+                            web3j.shutdown();
+                            webSocketService.close();
+                            return;
+                        case "successRate10":
+                            successRate10();
                             System.out.println(formatter.format(LocalDateTime.now(ZoneId.of("Asia/Shanghai"))) + " webSocket正在退出...");
                             web3j.shutdown();
                             webSocketService.close();
@@ -302,8 +309,6 @@ public class EthStats {
 
 
     public static void successRate() throws IOException {
-        String inputFilePath = "tps.csv";
-        String outputFilePath = "performance.csv";
         try (
                 BufferedReader reader = Files.newBufferedReader(Paths.get(inputFilePath));
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFilePath));
@@ -335,6 +340,60 @@ public class EthStats {
         }
     }
 
+    public static void successRate10() throws IOException {
+        Queue<String> lastLines = new LinkedList<>(); // 用于存储最后十行
+        Queue<String> firstLines = new LinkedList<>(); // 用于存储前十行
+
+        try (
+                BufferedReader reader = Files.newBufferedReader(Paths.get(inputFilePath));
+                BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFilePath));
+        ) {
+            writer.write(String.join(",", headers));
+            writer.flush();
+
+            // 跳过第一行（标题行）
+            reader.readLine();
+
+            // 读取前十行
+            String line;
+            int lineCount = 0;
+            while ((line = reader.readLine()) != null && lineCount < LINES_TO_READ) {
+                firstLines.add(line);
+                lineCount++;
+            }
+
+            // 继续读取文件，只保留最后十行
+            while ((line = reader.readLine()) != null) {
+                lastLines.add(line);
+                if (lastLines.size() > LINES_TO_READ) {
+                    lastLines.poll(); // 保持队列大小为10
+                }
+            }
+
+            // 继续读取文件，只保留最后十行
+            while ((line = reader.readLine()) != null) {
+                lastLines.add(line);
+                if (lastLines.size() > LINES_TO_READ) {
+                    lastLines.poll(); // 保持队列大小为10
+                }
+            }
+
+            // 处理并写入前十行和最后十行
+            for (String contentLine : firstLines) {
+                writer.write(processLine(contentLine));
+                writer.newLine();
+                writer.flush();
+            }
+
+            for (String contentLine : lastLines) {
+                writer.write(processLine(contentLine));
+                writer.newLine();
+                writer.flush();
+            }
+
+        }
+    }
+
     private static void printBlockNumber() {
         try {
             BigInteger blockNumber = web3j.ethBlockNumber().send().getBlockNumber();
@@ -342,5 +401,20 @@ public class EthStats {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String processLine(String line) {
+        String[] fields = line.split(",");
+        BigInteger blockHeight = new BigInteger(fields[0]);
+        String blockTime = fields[1];
+        String seconds = fields[2];
+        String txSize = fields[3];
+        String tps = fields[4];
+        String successRate = getSuccessRateByNumber(blockHeight);
+
+        Color.printColored("区块高度: " + blockHeight + ", 出块时间: " + blockTime + ", 出块间隔: " + seconds +
+                ", 交易数: " + txSize + ", tps: " + tps + ", 交易成功率: " + successRate, Color.CYAN);
+
+        return line + successRate;
     }
 }
